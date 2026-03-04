@@ -75,6 +75,7 @@ Each Assessment can be tagged with BNCC skills (stored as JSON). BNCC data struc
 - Use Doctrine ORM
 - All timestamps: createdAt, updatedAt
 - Soft deletes where applicable
+- Use Lifecycle Callbacks for automatic timestamps
 
 ---
 
@@ -82,7 +83,7 @@ Each Assessment can be tagged with BNCC skills (stored as JSON). BNCC data struc
 
 1. Read AGENTS.md first to understand project context
 2. Check git status for uncommitted changes
-3. Database: Configure in .env (PostgreSQL recommended)
+3. Database: PostgreSQL via Docker on port 5433 (check .env for credentials)
 4. Run migrations: `php bin/console doctrine:migrations:migrate`
 5. Load fixtures: `php bin/console doctrine:fixtures:load`
 6. Start server: `symfony server:start`
@@ -91,12 +92,46 @@ Each Assessment can be tagged with BNCC skills (stored as JSON). BNCC data struc
 
 ## Project Status
 
-- [ ] Install Doctrine ORM + migrations
-- [ ] Create School entity
-- [ ] Create User entity + PlatformAdmin fixture
+- [x] Install Doctrine ORM + migrations
+- [x] Create User entity with timestamps (Lifecycle Callbacks)
+- [x] Create User CRUD (controller, form, templates)
+- [ ] Create School entity (needed for User->school relation)
+- [ ] Create PlatformAdmin fixture
 - [ ] Create AcademicYear, GradeLevel entities + seed data
 - [ ] Create ClassGroup, Discipline entities + seed data
 - [ ] Create Enrollment, ClassDiscipline
 - [ ] Create Schedule
 - [ ] Create Assessment, StudentGrade, Attendance, Homework
-- [ ] Create basic CRUD controllers
+
+---
+
+## What's Been Done
+
+1. **User Entity** (`src/Entity/User.php`):
+   - Fields: id, username, email, password, firstname, lastname, cpf, phone, color
+   - Roles: array of strings
+   - Flags: isActive, isSecure
+   - Timestamps: createdAt, updatedAt, deletedAt (via #[ORM\HasLifecycleCallbacks])
+   - Implements: UserInterface, PasswordAuthenticatedUserInterface
+
+2. **User CRUD**:
+   - Controller: `src/Controller/UserController.php`
+   - Form: `src/Form/UserType.php` (with roles multi-select, password, color picker)
+   - Templates: `templates/user/`
+
+3. **Database**:
+   - PostgreSQL via Docker on port 5433
+   - Credentials: admin/secret
+   - Database: edu_symf_db
+
+4. **Docker Setup**:
+   - `compose.yaml` - main compose file
+   - Port 5433 exposed
+
+---
+
+## Current TODO
+
+- Create School entity (needed for User->school relation)
+- Set up authentication (make:security or make:auth)
+- Create PlatformAdmin fixture
